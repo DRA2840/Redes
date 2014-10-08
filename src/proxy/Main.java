@@ -9,6 +9,8 @@ import java.util.List;
 
 public class Main {
 	
+	private static final String IGNORED_EXTENTIONS = "tif, tiff, gif, jpeg, jpg, jif, jfif, jp2, jpx, j2k, j2c, fpx, pcd, png, ico, css, js";
+	
 	private enum ListType{
 		BLACK_LIST,
 		WHITE_LIST;
@@ -47,9 +49,12 @@ public class Main {
 					
 					arquivo = new FileReader(new File(args[1]));
 					leitor = new BufferedReader(arquivo);
-					
+					String aux = null;
 					while(leitor.ready()){
-						blackOrWhiteList.add(leitor.readLine());
+						aux = leitor.readLine().trim();
+						if(!"".equals(aux)){
+							blackOrWhiteList.add(aux);
+						}
 					}
 					
 					proxy(blackOrWhiteList, type);
