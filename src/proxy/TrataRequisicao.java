@@ -1,17 +1,17 @@
 package proxy;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 
@@ -23,7 +23,7 @@ public class TrataRequisicao implements Runnable{
 	private ListType tipo;
 	private List<String> blackOrWhiteList;
 	
-	public TrataRequisicao(Socket requisicao, List<String> blackOrWhiteList, ListType tipo){
+	public TrataRequisicao(Socket requisicao, List<String> blackOrWhiteList, ListType tipo) throws IOException{
 		this.requisicao = requisicao;
 		this.blackOrWhiteList = blackOrWhiteList;
 		this.tipo = tipo;
@@ -34,43 +34,73 @@ public class TrataRequisicao implements Runnable{
 
 		System.out.println(requisicao.toString());
 		try {
-			OutputStream output  = requisicao.getOutputStream();
-			
+			OutputStream req_server  = requisicao.getOutputStream();
+			req_server.flush();
 			String[] hostAndMethod = getUrlandMethodDestino(requisicao);
+			
+			System.out.println(hostAndMethod[0]);
 			
 			URL serveradress = new URL(hostAndMethod[0]);
 			HttpURLConnection connection= (HttpURLConnection)serveradress.openConnection();
 			connection.setRequestMethod(hostAndMethod[1]);
 			connection.setDoOutput(true);
-			connection.setReadTimeout(10000);
 			connection.connect();
 			
-			output.write(IOUtils.toByteArray(connection.getInputStream()));
+			InputStream res_server = connection.getInputStream();
+			
+			if(isValidUrl(hostAndMethod[0])){
+				
+				req_server.write(IOUtils.toByteArray(res_server));
+				req_server.flush();
+				requisicao.close();
+			}else{
+				req_server.flush();
+				requisicao.close();
+				
+				String file = hostAndMethod[0].replace("http://", "").replace("/", ".");
+				if(file.endsWith(".")){
+					file = file + "html";
+				}
+				
+				FileOutputStream out = new FileOutputStream("blockedPages/" + file);
+				
+				out.write(IOUtils.toByteArray(res_server));
+				
+				
+				IOUtils.closeQuietly(out);
+			}
+			
+			
 			
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+		
 		
 	}
 	
-	public String[] getUrlandMethodDestino(Socket requisicao) throws IOException{
+	private synchronized String[] getUrlandMethodDestino(Socket requisicao) throws IOException{
 		BufferedReader recebido_browser = new BufferedReader(new InputStreamReader(requisicao.getInputStream()));
-        String mensagem = (String)recebido_browser.readLine();
+        String mensagem  = recebido_browser.readLine();
 
         String[] splited = mensagem.split(" ");
         
         return new String[] {splited[1], splited[0]};
 	}
 	
-	public boolean isValidUrl(String url){
+	private boolean isValidUrl(String url){
 		
 		if(tipo.equals(ListType.BLACK_LIST)){
 			
 		}else{
 			
+		}
+		
+		if(url.startsWith("http://www.unb.br")){
+			System.out.println("URL bloqueada: "+ url);
+			return false;
 		}
 		
 		return true;
