@@ -11,58 +11,70 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.Socket;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 
 public class TrataRequisicao implements Runnable{
 
-	private static final String IGNORED_EXTENTIONS = "tif, tiff, gif, jpeg, jpg, jif, jfif, jp2, jpx, j2k, j2c, fpx, pcd, png, ico, css, js";
+	private static final String[] EXTENSOES_NAO_CONTAM = {".jpg", ".jpeg", ".gif", ".ico", ".js", ".css", ".woff"
+		, ".png", ".svg", ".tiff", ".dib", ".bmp", ".avi", ".mp4", ".tif"};
+	
+	String diretorioBloquedPages;
+	
+	private static DaoRequisicao dao;
 	
 	private Socket requisicao;
 	private ListType tipo;
 	private List<String> blackOrWhiteList;
 	
-	public TrataRequisicao(Socket requisicao, List<String> blackOrWhiteList, ListType tipo) throws IOException{
+	public TrataRequisicao(Socket requisicao, List<String> blackOrWhiteList, ListType tipo, String diretorioBloquedPages) throws IOException{
 		this.requisicao = requisicao;
 		this.blackOrWhiteList = blackOrWhiteList;
 		this.tipo = tipo;
+		this.diretorioBloquedPages = diretorioBloquedPages;
 	}
 
 	@Override
 	public void run() {
+		
+		Requisicao atual = new Requisicao();
 
-		System.out.println(requisicao.toString());
 		try {
 			OutputStream req_server  = requisicao.getOutputStream();
 			req_server.flush();
-			String[] hostAndMethod = getUrlandMethodDestino(requisicao);
+			String[] splitedHttpMethod = splitHttpMethod(requisicao);
+			HttpURLConnection connection = getConnection(splitedHttpMethod);
 			
-			System.out.println(hostAndMethod[0]);
-			
-			URL serveradress = new URL(hostAndMethod[0]);
-			HttpURLConnection connection= (HttpURLConnection)serveradress.openConnection();
-			connection.setRequestMethod(hostAndMethod[1]);
-			connection.setDoOutput(true);
-			connection.connect();
-			
+			long before = System.currentTimeMillis();
 			InputStream res_server = connection.getInputStream();
+			long after = System.currentTimeMillis();
 			
-			if(isValidUrl(hostAndMethod[0])){
+			// Monta os dados estatisticos da requisicao
+			atual.setIp( requisicao.getInetAddress().toString() );
+			atual.setDelay(after - before);
+			atual.setUrl(splitedHttpMethod[1]);
+			atual.setBlocked(! isValidUrl(atual.getUrl()));
+			
+			System.out.println("Requisicao: \n\tIP: " + atual.getIp() + "\n\tURL: " + atual.getUrl() + "\n\tTempo gasto: " + atual.getDelay() );
+			
+			if( ! atual.isBlocked() ){
 				
 				req_server.write(IOUtils.toByteArray(res_server));
 				req_server.flush();
 				requisicao.close();
 			}else{
+				req_server.write(IOUtils.toByteArray(new FileReader(new File("bloquedResponse.html") ) ));
 				req_server.flush();
 				requisicao.close();
 				
-				String file = hostAndMethod[0].replace("http://", "").replace("/", ".");
+				String file = splitedHttpMethod[1].replace("http://", "").replace("/", ".");
 				if(file.endsWith(".")){
 					file = file + "html";
 				}
 				
-				FileOutputStream out = new FileOutputStream("blockedPages/" + file);
+				FileOutputStream out = new FileOutputStream( diretorioBloquedPages + "/" + file);
 				
 				out.write(IOUtils.toByteArray(res_server));
 				
@@ -70,6 +82,8 @@ public class TrataRequisicao implements Runnable{
 				IOUtils.closeQuietly(out);
 			}
 			
+			// Adiciona nas estatisticas
+			addStatistcs(atual);
 			
 			
 			
@@ -81,28 +95,80 @@ public class TrataRequisicao implements Runnable{
 		
 	}
 	
-	private synchronized String[] getUrlandMethodDestino(Socket requisicao) throws IOException{
+	private String[] splitHttpMethod(Socket requisicao) throws IOException{
 		BufferedReader recebido_browser = new BufferedReader(new InputStreamReader(requisicao.getInputStream()));
-        String mensagem  = recebido_browser.readLine();
-
-        String[] splited = mensagem.split(" ");
+        String mensagem = recebido_browser.readLine();
         
-        return new String[] {splited[1], splited[0]};
+        return mensagem.split(" ");
 	}
 	
 	private boolean isValidUrl(String url){
 		
+		url = url.replace("http://", "");
+		
 		if(tipo.equals(ListType.BLACK_LIST)){
+			
+			for(String blockedItem : blackOrWhiteList){
+				
+				if(url.startsWith(blockedItem)){
+					System.out.println("URL bloqueada: "+ url);
+					return false;
+				}
+			}
+			return true;
 			
 		}else{
 			
-		}
-		
-		if(url.startsWith("http://www.unb.br")){
+			for(String permitedItem : blackOrWhiteList){
+				
+				if(url.startsWith(permitedItem)){
+					return true;
+				}
+			}
 			System.out.println("URL bloqueada: "+ url);
 			return false;
+			
 		}
 		
-		return true;
+	}
+	
+	private HttpURLConnection getConnection(String[] splitedHttpMethod) throws IOException{
+		
+		URL serveradress = new URL(splitedHttpMethod[1]);
+		HttpURLConnection connection = (HttpURLConnection)serveradress.openConnection();
+		connection.setRequestMethod(splitedHttpMethod[0]);
+		
+		connection.setDoOutput(true);
+		connection.connect();
+		
+		return connection;
+	}
+	
+	private static synchronized void addStatistcs( Requisicao r){
+		
+		boolean shouldCount = true;
+		
+		for(int i = 0; i < EXTENSOES_NAO_CONTAM.length; i++){
+			if(r.getUrl().endsWith( EXTENSOES_NAO_CONTAM[i] )){
+				shouldCount = false;
+			}
+		}
+		
+		if(shouldCount){
+			try {
+				if(dao == null){
+					dao = new DaoRequisicao();
+					dao.createTable();
+				}
+				
+				dao.insertRequisicao(r);
+				
+			} catch (SQLException e) {
+				System.out.println("Falha ao se comunicar com o Banco de Dados.");
+				e.printStackTrace();
+			}
+		}
+		
+		
 	}
 }
