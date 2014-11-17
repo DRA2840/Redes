@@ -15,8 +15,8 @@ import java.util.List;
  * <ol>
  * <li><i>-b</i> ou <i>-r</i>: -b para rodar em modo blacklist e -w para rodar em modo whitelist</li>
  * <li><i>caminho (path)</i>: caminho para a localizacao do arquivo da lista</li>
- * <li><i>porta<i>: porta que o proxy vai escutar. Deve ser um numero, e nao ser uma porta reservada.</li>
- * <li><i>caminho (path)<i>: caminho para o diretorio para escrita das paginas bloqueadas. Nao deve terminar em '/'</li>
+ * <li><i>porta</i>: porta que o proxy vai escutar. Deve ser um numero, e nao ser uma porta reservada.</li>
+ * <li><i>caminho (path)</i>: caminho para o diretorio para escrita das paginas bloqueadas. Nao deve terminar em '/'</li>
  * </ol>
  * 
  * @author <img src="https://avatars2.githubusercontent.com/u/3778188?v=2&s=30" width="30" height="30" /> <a href="https://github.com/DRA2840" target="_blank"> DRA2840 </a>
@@ -33,8 +33,8 @@ public class Main {
 	 * @param args Argumentos passados por linha de comando da inicializacao da classe.<ol>
 	 * <li><i>-b</i> ou <i>-r</i>: -b para rodar em modo blacklist e -w para rodar em modo whitelist</li>
 	 * <li><i>caminho (path)</i>: caminho para a localizacao do arquivo da lista</li>
-	 * <li><i>porta<i>: porta que o proxy vai escutar. Deve ser um numero, e nao ser uma porta reservada.</li>
-	 * <li><i>caminho (path)<i>: caminho para o diretorio para escrita das paginas bloqueadas. Nao deve terminar em '/'</li>
+	 * <li><i>porta</i>: porta que o proxy vai escutar. Deve ser um numero, e nao ser uma porta reservada.</li>
+	 * <li><i>caminho (path)</i>: caminho para o diretorio para escrita das paginas bloqueadas. Nao deve terminar em '/'</li>
 	 * </ol>
 	 */
 	public static void main(String[] args) {

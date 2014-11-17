@@ -19,13 +19,13 @@ import org.apache.commons.io.IOUtils;
 /**
  * Classe primordial para o funcionamento do proxy, eh responsavel por receber um socket e outras informacoes,
  * Funcionamento:
- * <ul>
+ * <ol>
  * <li>Recebe um {@link Socket} de uma requisicao.</li>
  * <li>Faz a requisicao na rede.</li>
  * <li>Verifica a validade da URL. 
- * 		<ol>
+ * 		<ul>
  * 		<li> Se estiver bloqueada, retorna uma pagina de erro e grava o resultado da requisicao em disco para avaliacao</li>
- * 		<li> Se estiver liberada, envia o resultado da requisicao direto para o usuario</li></ol></li> 
+ * 		<li> Se estiver liberada, envia o resultado da requisicao direto para o usuario</li></ul></li> 
  * <li>Adiciona essa requisicao nas estatisticas</li>
  * </ol>
  * 

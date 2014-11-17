@@ -33,9 +33,9 @@ public class DaoRequisicao {
 	}
 	
 	/** 
-	 * Cria uma nova tabela. É usado cada vez que o proxy recebe a primeira {@link Requisicao}
+	 * Cria uma nova tabela. Eh usado cada vez que o proxy recebe a primeira {@link Requisicao}
 	 * 
-	 * @throws SQLException Caso a tabela não seja criada.
+	 * @throws SQLException Caso a tabela nao seja criada.
 	 */
 	public void createTable() throws SQLException{
 		Connection c = getConnection();
@@ -81,11 +81,11 @@ public class DaoRequisicao {
 	
 	/** 
 	 * Busca URLs mais requisitadas, em ordem decrescente. Usado como estatistica basica, possui os campos:
-	 * <ul>
+	 * <ol>
 	 * <li> URL: url que foi requisitada.</li>
 	 * <li> acessos: Numero de vezes que a URL foi requisitada</li>
 	 * <li> tempo_Medio: Tempo medio, em milisegundos, gasto para receber o conteudo da pagina</li>
-	 * </ul>
+	 * </ol>
 	 * 
 	 * @return {@link ResultSet} com os campos acima.
 	 */
@@ -110,10 +110,10 @@ public class DaoRequisicao {
 	
 	/**
 	 * Busca IPs que mais fizeram requisicoes, em ordem descescente. Usado como estatistica basica, possui os campos:
-	 * <ul>
+	 * <ol>
 	 * <li> IP: ip da maquina que gerou as requisicoes</li>
 	 * <li> acessos: Numero de requisicoes feitas</li>
-	 * </ul>
+	 * </ol>
 	 *  
 	 * @return {@link ResultSet} com os campos acima.
 	 */
@@ -138,11 +138,11 @@ public class DaoRequisicao {
 	
 	/**
 	 * Busca as URLs bloqueadas, em ordem decrescente de requisicoes. Usado como estatistica basica, possui os campos:
-	 * <ul>
+	 * <ol>
 	 * <li> URL: url que foi requisitada.</li>
 	 * <li> IP: ip que requisitou a url bloqueada</li>
 	 * <li> tentativas: Numero de tentativas de acesso que aquele IP fez para aquela URL</li>
-	 * </ul>
+	 * </ol>
 	 * 
 	 * @return {@link ResultSet} com os campos acima.
 	 */
