@@ -7,26 +7,40 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+/**
+ * Classe que fornece uma interface simples com o banco de dados.
+ * 
+ * @author <img src="https://avatars2.githubusercontent.com/u/3778188?v=2&s=30" width="30" height="30" /> <a href="https://github.com/DRA2840" target="_blank"> DRA2840 </a>
+ *
+ */
 public class DaoRequisicao {
 	
-	// Cria conexao
-	public Connection getConnection(){
-		Connection c = null;
+	/**
+	 * Cria uma nova conexao com o Banco de Dados
+	 * @return {@link Connection} 
+	 */
+	private Connection getConnection(){
+		Connection conn = null;
 	    try {
-	      Class.forName("org.sqlite.JDBC");
-	      c = DriverManager.getConnection("jdbc:sqlite:test.db");
-	      c.setAutoCommit(true);
-	    } catch ( Exception e ) {
-	      System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-	      System.exit(0);
+	    	// Procura o Driver do sqlite (obtido via maven, nao eh necessario adicionar ao classpath manualmente)
+	    	Class.forName("org.sqlite.JDBC");
+	    	conn = DriverManager.getConnection("jdbc:sqlite:test.db");
+	    	conn.setAutoCommit(true);
+	    } catch ( SQLException | ClassNotFoundException e ) {
+	    	e.printStackTrace();
 	    }
-	    return c;
+	    return conn;
 	}
 	
-	// Cria uma nova tabela cada ve que o proxy inicia
+	/** 
+	 * Cria uma nova tabela. É usado cada vez que o proxy recebe a primeira {@link Requisicao}
+	 * 
+	 * @throws SQLException Caso a tabela não seja criada.
+	 */
 	public void createTable() throws SQLException{
 		Connection c = getConnection();
 		
+		// Cria a tabela Requisicoes
 		Statement stmt = c.createStatement();
 	      String sql = "DROP TABLE IF EXISTS Requisicoes; " +
 	    		  	   "CREATE TABLE Requisicoes   " +
@@ -39,13 +53,21 @@ public class DaoRequisicao {
 	      c.close();
 	}
 	
-	//Insere uma nova requisicao
+	/** 
+	 * Insere uma nova {@link Requisicao} no Banco de Dados
+	 * 
+	 * @param req {@link Requisicao} a ser gravada
+	 * @throws SQLException Caso nao seja possivel gravar a {@link Requisicao}
+	 */
 	public void insertRequisicao(Requisicao req) throws SQLException{
 		Connection conn = getConnection();
 		
 		String sql = "INSERT into Requisicoes (IP, URL, DELAY, BLOCKED) values (?,?,?,?)";
 		
 		PreparedStatement stmt = conn.prepareStatement(sql);
+		
+		// Bind de variaveis, prevenindo SQL injection
+		// Motivacao: http://xkcd.com/327/
 		stmt.setString(1, req.getIp());
 		stmt.setString(2, req.getUrl());
 		stmt.setLong(3, req.getDelay());
@@ -57,58 +79,87 @@ public class DaoRequisicao {
 		conn.close();
 	}
 	
-	//Busca URLs por ordem de acesso
+	/** 
+	 * Busca URLs mais requisitadas, em ordem decrescente. Usado como estatistica basica, possui os campos:
+	 * <ul>
+	 * <li> URL: url que foi requisitada.</li>
+	 * <li> acessos: Numero de vezes que a URL foi requisitada</li>
+	 * <li> tempo_Medio: Tempo medio, em milisegundos, gasto para receber o conteudo da pagina</li>
+	 * </ul>
+	 * 
+	 * @return {@link ResultSet} com os campos acima.
+	 */
 	public ResultSet urlsPorOrdemDeAcesso() {
 		Connection conn = getConnection();
 		
-		String sql = "SELECT URL, count(URL) , avg(delay) from Requisicoes GROUP BY URL ORDER BY count(URL) desc";
+		String sql = "SELECT URL, count(URL) as acessos , avg(delay) as tempo_Medio from Requisicoes GROUP BY URL ORDER BY count(URL) desc";
 		
 		ResultSet rs = null;
 		try {
+			// Seria mais elegante usar PreparedStatement, mas como nao ha possibilidade de
+			// SQL injection, optei pela alternativa mais simples.
 			Statement stmt = conn.createStatement();
-			
 			rs = stmt.executeQuery(sql);
 			
 		} catch (SQLException e) {
-			System.out.println("Erro: urlsPorOrdemDeAcesso");
+			e.printStackTrace();
 		}
 		
 		return rs;
 	}
 	
-	//Busca IPs por ordem de acesso
+	/**
+	 * Busca IPs que mais fizeram requisicoes, em ordem descescente. Usado como estatistica basica, possui os campos:
+	 * <ul>
+	 * <li> IP: ip da maquina que gerou as requisicoes</li>
+	 * <li> acessos: Numero de requisicoes feitas</li>
+	 * </ul>
+	 *  
+	 * @return {@link ResultSet} com os campos acima.
+	 */
 	public ResultSet ipsPorOrdemDeAcesso() {
 		Connection conn = getConnection();
 		
-		String sql = "SELECT IP, count(IP) from Requisicoes GROUP BY IP ORDER BY count(IP) desc";
+		String sql = "SELECT IP, count(IP) as acessos from Requisicoes GROUP BY IP ORDER BY count(IP) desc";
 		
 		ResultSet rs = null;
 		try {
+			// Seria mais elegante usar PreparedStatement, mas como nao ha possibilidade de
+			// SQL injection, optei pela alternativa mais simples.
 			Statement stmt = conn.createStatement();
-			
 			rs = stmt.executeQuery(sql);
 			
 		} catch (SQLException e) {
-			System.out.println("Erro: ipsPorOrdemDeAcesso");
+			e.printStackTrace();
 		}
 		
 		return rs;
 	}
 	
-	// Busca as URLs bloqueadas
+	/**
+	 * Busca as URLs bloqueadas, em ordem decrescente de requisicoes. Usado como estatistica basica, possui os campos:
+	 * <ul>
+	 * <li> URL: url que foi requisitada.</li>
+	 * <li> IP: ip que requisitou a url bloqueada</li>
+	 * <li> tentativas: Numero de tentativas de acesso que aquele IP fez para aquela URL</li>
+	 * </ul>
+	 * 
+	 * @return {@link ResultSet} com os campos acima.
+	 */
 	public ResultSet urlsBloqueadas() {
 		Connection conn = getConnection();
 		
-		String sql = "SELECT URL, IP, count(IP) from Requisicoes WHERE BLOCKED = '1' GROUP BY URL, IP order by URL";
+		String sql = "SELECT URL, IP, count(IP) as tentativas from Requisicoes WHERE BLOCKED = '1' GROUP BY URL, IP order by URL";
 		
 		ResultSet rs = null;
 		try {
+			// Seria mais elegante usar PreparedStatement, mas como nao ha possibilidade de
+			// SQL injection, optei pela alternativa mais simples.
 			Statement stmt = conn.createStatement();
-			
 			rs = stmt.executeQuery(sql);
 			
 		} catch (SQLException e) {
-			System.out.println("Erro: urlsBloqueadas");
+			e.printStackTrace();
 		}
 		
 		return rs;
