@@ -15,6 +15,7 @@ public class TrataInputTeclado implements Runnable{
 		boolean continueRunning = true;
 		BufferedReader recebido_browser = new BufferedReader(new InputStreamReader(System.in));
 		
+		// Essa thread eh responsavel por pausar a execucao
 		while (continueRunning){
 			System.out.println("Digite 'sair' para encerrar o proxy: ");
 			String mensagem;
@@ -29,6 +30,7 @@ public class TrataInputTeclado implements Runnable{
 				System.out.println("Erro lendo input do teclado. Abortando execussão.");
 				continueRunning = false;
 				Main.endRun();
+				mostrarEstatisticas();
 			}
 			
 		}
@@ -37,6 +39,7 @@ public class TrataInputTeclado implements Runnable{
 		
 	}
 	
+	// Ao final da execucao, busca as estatisticas pela DAO e mostra aqui.
 	private void mostrarEstatisticas() {
 		
 		DaoRequisicao dao = new DaoRequisicao();

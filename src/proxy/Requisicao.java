@@ -1,5 +1,10 @@
 package proxy;
 
+/**
+ * POJO que representa uma requisicao.
+ * @author diego
+ *
+ */
 public class Requisicao {
 	
 	private String ip;

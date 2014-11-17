@@ -18,6 +18,7 @@ import org.apache.commons.io.IOUtils;
 
 public class TrataRequisicao implements Runnable{
 
+	// Ignoro essas extensoes na hora de gravar no banco
 	private static final String[] EXTENSOES_NAO_CONTAM = {".jpg", ".jpeg", ".gif", ".ico", ".js", ".css", ".woff"
 		, ".png", ".svg", ".tiff", ".dib", ".bmp", ".avi", ".mp4", ".tif"};
 	
@@ -28,6 +29,7 @@ public class TrataRequisicao implements Runnable{
 	private Socket requisicao;
 	private ListType tipo;
 	private List<String> blackOrWhiteList;
+	
 	
 	public TrataRequisicao(Socket requisicao, List<String> blackOrWhiteList, ListType tipo, String diretorioBloquedPages) throws IOException{
 		this.requisicao = requisicao;
@@ -57,23 +59,29 @@ public class TrataRequisicao implements Runnable{
 			atual.setUrl(splitedHttpMethod[1]);
 			atual.setBlocked(! isValidUrl(atual.getUrl()));
 			
+			// Acompanhamento em tempo real =P
 			System.out.println("Requisicao: \n\tIP: " + atual.getIp() + "\n\tURL: " + atual.getUrl() + "\n\tTempo gasto: " + atual.getDelay() );
 			
 			if( ! atual.isBlocked() ){
 				
+				// Se nao esta bloqueada, so manda pro cliente
 				req_server.write(IOUtils.toByteArray(res_server));
 				req_server.flush();
 				requisicao.close();
 			}else{
+				
+				// Se estiver bloqueada, retorna pagina de erro
 				req_server.write(IOUtils.toByteArray(new FileReader(new File("bloquedResponse.html") ) ));
 				req_server.flush();
 				requisicao.close();
 				
+				// Monta o nome do arquivo
 				String file = splitedHttpMethod[1].replace("http://", "").replace("/", ".");
 				if(file.endsWith(".")){
 					file = file + "html";
 				}
 				
+				// Grava o arquivo no diretorio especifico
 				FileOutputStream out = new FileOutputStream( diretorioBloquedPages + "/" + file);
 				
 				out.write(IOUtils.toByteArray(res_server));
