@@ -61,4 +61,5 @@ Este software é livre para uso, sem custos, com os seguintes requisitos:
 * A atribuição deste software é obrigatória;
 * Os comentários em formato Javadoc não podem ser removidos;
 * Caso os comentários Javadoc sejam alterados, é __obrigatório__ que meu apelido (DRA2840) seja mantido como 1º autor, da forma como está atualmente (foto e link para o github);
-* É proibida a cópia de qualquer trecho de código, alterando ou não o nome de métodos e variáveis, sem a devida atribuição.
+* É proibida a cópia de qualquer trecho de código, alterando ou não o nome de métodos e variáveis, sem a devida atribuição;
+* Quaisquer bugs, erros, ou problemas que este software venha a causar são de exclusiva responsabilidade do usuário.
