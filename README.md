@@ -38,12 +38,12 @@ o .jar deve rodar com as seguintes especificações:
 
 ``` java -jar proxy.jar <-b ou -w> <black or white list> <porta do proxy> <blocked pages dir> ```
 
-* A opção __-b__ trata a lista como blacklist
-* A opção __-w__ trata a lista como whitelist
+* A opção __-b__ trata a lista como _blacklist_
+* A opção __-w__ trata a lista como _whitelist_
   * os modos __-b__ e __-w__ são mutuamente excludentes
-* O parâmetro __<black or white list>__ deve ser o path para um arquivo texto com a _blacklist_ ou _whitelist_ dependendo do modo como o proxy deve rodar
-* O parâmetro __<porta do proxy>__ deve ser um número inteiro, e simboliza a porta que o proxy escutará as requisições.
-* O parâmetro __<blocked pages dir>__ deve ser o path onde as páginas bloqueadas serão armazenadas para consulta futura.
+* O parâmetro __&lt;black or white list&gt;__ deve ser o path para um arquivo texto com a _blacklist_ ou _whitelist_ dependendo do modo como o proxy deve rodar
+* O parâmetro __&lt;porta do proxy&gt;__ deve ser um número inteiro, e simboliza a porta que o proxy escutará as requisições.
+* O parâmetro __&lt;blocked pages dir&gt;__ deve ser o path onde as páginas bloqueadas serão armazenadas para consulta futura.
   * Este path não deve terminar em /, mesmo simbolizando um diretório.
 
 
@@ -58,7 +58,7 @@ Qualquer melhoria implementada, independente de estar listada acima, pode ser en
 
 # Licensa
 Este software é livre para uso, sem custos, com os seguintes requisitos:
-* A atribuição deste software é obrigatória;
+* A atribuição deste software é obrigatória, com link para a página do projeto no github;
 * Os comentários em formato Javadoc não podem ser removidos;
 * Caso os comentários Javadoc sejam alterados, é __obrigatório__ que meu apelido (DRA2840) seja mantido como 1º autor, da forma como está atualmente (foto e link para o github);
 * É proibida a cópia de qualquer trecho de código, alterando ou não o nome de métodos e variáveis, sem a devida atribuição;
