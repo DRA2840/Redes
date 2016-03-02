@@ -22,7 +22,7 @@ public class TrataInputTeclado implements Runnable{
 	 * for digitado 'sair'. Caso tenha alguma IOException, também encerra o proxy.<br />
 	 * Independente da forma que encerrar o proxy, o programa mostra as estatísticas.
 	 * 
-	 * /
+	 */
 	@Override
 	public void run() {
 		boolean continueRunning = true;
