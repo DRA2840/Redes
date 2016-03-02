@@ -17,6 +17,12 @@ public class TrataInputTeclado implements Runnable{
 	
 	
 	
+	/**
+	 * Metodo principal da thread. Fica constantemente lendo um input do teclado, e encerra o proxy quando
+	 * for digitado 'sair'. Caso tenha alguma IOException, também encerra o proxy.<br />
+	 * Independente da forma que encerrar o proxy, o programa mostra as estatísticas.
+	 * 
+	 * /
 	@Override
 	public void run() {
 		boolean continueRunning = true;
