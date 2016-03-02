@@ -13,7 +13,7 @@ import java.util.List;
  * Classe principal do Proxy, eh responsavel por fazer o tratamento dos dados iniciais e iniciar o loop do proxy
  * O uso do proxy deve ter os seguintes parametros passados por linha de comando:
  * <ol>
- * <li><i>-b</i> ou <i>-r</i>: -b para rodar em modo blacklist e -w para rodar em modo whitelist</li>
+ * <li><i>-b</i> ou <i>-w</i>: -b para rodar em modo blacklist e -w para rodar em modo whitelist</li>
  * <li><i>caminho (path)</i>: caminho para a localizacao do arquivo da lista</li>
  * <li><i>porta</i>: porta que o proxy vai escutar. Deve ser um numero, e nao ser uma porta reservada.</li>
  * <li><i>caminho (path)</i>: caminho para o diretorio para escrita das paginas bloqueadas. Nao deve terminar em '/'</li>
@@ -31,7 +31,7 @@ public class Main {
 	 * Metodo Main, faz a verificacao dos argumentos e chama o metodo proxy, que realmente inicia o proxy.
 	 * 
 	 * @param args Argumentos passados por linha de comando da inicializacao da classe.<ol>
-	 * <li><i>-b</i> ou <i>-r</i>: -b para rodar em modo blacklist e -w para rodar em modo whitelist</li>
+	 * <li><i>-b</i> ou <i>-w</i>: -b para rodar em modo blacklist e -w para rodar em modo whitelist</li>
 	 * <li><i>caminho (path)</i>: caminho para a localizacao do arquivo da lista</li>
 	 * <li><i>porta</i>: porta que o proxy vai escutar. Deve ser um numero, e nao ser uma porta reservada.</li>
 	 * <li><i>caminho (path)</i>: caminho para o diretorio para escrita das paginas bloqueadas. Nao deve terminar em '/'</li>
